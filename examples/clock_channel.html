@@ -1,0 +1,12 @@
+<html>
+  <head>
+    <title>ActionCable JS Test</title>
+    <script src="../dist/action_cable.js" type="text/javascript"></script>
+    <script src="clock_channel.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <button id="start" onclick="window.App.clockChannel.start()">Start</button>
+    <button id="stop" onclick="window.App.clockChannel.stop()">Stop</button>
+    <div id="log"></div>
+  </body>
+</html>
