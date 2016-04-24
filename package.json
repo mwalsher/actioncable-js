@@ -1,0 +1,26 @@
+{
+  "name": "actioncable-js",
+  "version": "1.0.0",
+  "description": "Standalone ActionCable Javascript from Rails 5 for usage outside of Ruby on Rails",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mwalsher/actioncable-js.git"
+  },
+  "keywords": [
+    "actioncable",
+    "rails",
+    "websockets"
+  ],
+  "author": "Mike Walsh (https://github.com/mwalsher)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mwalsher/actioncable-js/issues"
+  },
+  "homepage": "https://github.com/mwalsher/actioncable-js#readme"
+}
