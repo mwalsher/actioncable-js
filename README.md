@@ -3,7 +3,17 @@ Standalone ActionCable Javascript from Rails 5 for usage outside of Ruby on Rail
 
 ## Usage
 
-Simply include `dist/action_cable.js` in your project and use per the instructions [here](https://github.com/rails/rails/tree/master/actioncable).
+actioncable-js can be installed using npm:
+
+`npm install actioncable-js`
+
+And included in your ES6+ project with:
+
+`include { ActionCable } from 'actioncable-js'`
+
+Alternatively, simply include `dist/action_cable.js` in your project.
+
+ActionCable documentation is available [here](https://github.com/rails/rails/tree/master/actioncable).
 
 ## Example
 
@@ -13,9 +23,6 @@ A simple HTML/JS example app is provided in `examples/`. Simply put `examples/cl
 
 You can update and recompile action_cable.js by running `./update.sh`.
 
-## TODO
-
-1. Fix issues with webpack inclusion
 
 ## License
 
