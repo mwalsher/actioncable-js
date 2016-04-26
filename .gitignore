@@ -1,2 +1,3 @@
 rails/.bundle
 .bin
+node_modules/

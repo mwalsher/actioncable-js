@@ -6,8 +6,7 @@
   "directories": {
     "example": "examples"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mwalsher/actioncable-js.git"
@@ -22,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/mwalsher/actioncable-js/issues"
   },
-  "homepage": "https://github.com/mwalsher/actioncable-js#readme"
+  "homepage": "https://github.com/mwalsher/actioncable-js#readme",
+  "dependencies": {
+    "imports-loader": "^0.6.5"
+  }
 }

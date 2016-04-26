@@ -7,8 +7,6 @@ RAILS_ENV=production ${PWD}/rails/.bundle/bin/bundle install --without doc job t
 RAILS_ENV=production BUNDLE_GEMFILE=${PWD}/rails/Gemfile ${PWD}/rails/.bundle/bin/bundle exec rake -f ${PWD}/rails/actioncable/Rakefile assets:compile
 mv ${PWD}/rails/actioncable/lib/assets/compiled/action_cable.js ${PWD}/dist
 rm -rf ${PWD}/rails/actioncable/lib/assets
-
-
 # Install bundler if not already installed
 # (which bundle > /dev/null) || gem install bundler
 # Attempt at installing only the necessary gems
