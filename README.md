@@ -17,7 +17,7 @@ ActionCable documentation is available [here](https://github.com/rails/rails/tre
 
 ## Example
 
-A simple HTML/JS example app is provided in `examples/`. Simply put `examples/clock_channel.rb` in your Rails 5 app, launch the Rails server, and open `examples/clock_channel.html` in your web brower. This app assumes that ActionCable is mounted at `http://localhost:3000`.
+A simple HTML/JS example app is provided in `examples/`. Simply put `examples/clock_channel.rb` in your Rails 5 app, launch the Rails server, and open `examples/clock_channel.html` in your web browser. This app assumes that ActionCable is mounted at `http://localhost:3000`.
 
 ## Updating
 
