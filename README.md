@@ -9,7 +9,7 @@ actioncable-js can be installed using npm:
 
 And included in your ES6+ project with:
 
-`include { ActionCable } from 'actioncable-js'`
+`import { ActionCable } from 'actioncable-js';`
 
 Alternatively, simply include `dist/action_cable.js` in your project.
 
