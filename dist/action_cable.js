@@ -487,7 +487,7 @@
       if (data == null) {
         data = {};
       }
-      return this.send( extend(true, data, {action: action}));
+      return this.send(jqueryPollyFill.extend(true,{}, data, {action: action}));
     };
 
     Subscription.prototype.send = function(data) {
@@ -502,42 +502,58 @@
       return this.consumer.subscriptions.remove(this);
     };    
     
+    extend = function(object, properties) {
+      var key, value;
+      if (properties != null) {
+        for (key in properties) {
+          value = properties[key];
+          object[key] = value;
+        }
+      }
+      return object;
+    };
+    
     // (Polyfill jquery extend) Pass in the objects to merge as arguments. 
-    // For a deep extend, set the first argument to `true`.      
-    extend = function() {
-     // Variables
-     var extended = {};
-     var deep = false;
-     var i = 0;
-     var length = arguments.length;
+    // For a deep extend, set the first argument to `true`. 
+    var jqueryPollyFill = {};     
+    jqueryPollyFill.extend = function() {
+      // Variables
+      var extended = {};
+      var deep = false;
+      var i = 0;
+      var length = arguments.length;
 
-     // Check if a deep merge
-     if ( Object.prototype.toString.call( arguments[0] ) === '[object Boolean]' ) {
-       deep = arguments[0];
-       i++;
-     }
+      // Check if a deep merge
+      if ( Object.prototype.toString.call( arguments[0] ) === '[object Boolean]' ) {
+        deep = arguments[0];
+        i++;
+      }
 
-     // Merge the object into the extended object
-     var merge = function (obj) {
-       for ( var prop in obj ) {
-         if ( Object.prototype.hasOwnProperty.call( obj, prop ) ) {
-           // If deep merge and property is an object, merge properties
-           if ( deep && Object.prototype.toString.call(obj[prop]) === '[object Object]' ) {
-             extended[prop] = extend( true, extended[prop], obj[prop] );
-           } else {
-             extended[prop] = obj[prop];
-           }
-         }
-       }
-     };
+      // Merge the object into the extended object
+      var merge = function (obj) {
+        for ( var prop in obj ) {
+          if ( Object.prototype.hasOwnProperty.call( obj, prop ) ) {
+            // If deep merge and property is an object, merge properties
+            if ( deep && Object.prototype.toString.call(obj[prop]) === '[object Object]' ) {
+              extended[prop] = extend( true, extended[prop], obj[prop] );
+            } else {
+              extended[prop] = obj[prop];
+            }
+          }
+        }
+      };
 
-     // Loop through each object and conduct a merge
-     for ( ; i < length; i++ ) {
-       var obj = arguments[i];
-       merge(obj);
-     }
+      // Loop through each object and conduct a merge
+      for ( ; i < length; i++ ) {
+        var obj = arguments[i];
+        merge(obj);
+      }
 
-     return extended;
+      return extended;
+    };     
+    
+    return Subscription;
+
   })();
 
 }).call(this);
