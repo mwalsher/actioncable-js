@@ -487,8 +487,7 @@
       if (data == null) {
         data = {};
       }
-      data.action = action;
-      return this.send(data);
+      return this.send( extend(true, data, {action: action}));
     };
 
     Subscription.prototype.send = function(data) {
@@ -501,21 +500,44 @@
 
     Subscription.prototype.unsubscribe = function() {
       return this.consumer.subscriptions.remove(this);
-    };
+    };    
+    
+    // (Polyfill jquery extend) Pass in the objects to merge as arguments. 
+    // For a deep extend, set the first argument to `true`.      
+    extend = function() {
+     // Variables
+     var extended = {};
+     var deep = false;
+     var i = 0;
+     var length = arguments.length;
 
-    extend = function(object, properties) {
-      var key, value;
-      if (properties != null) {
-        for (key in properties) {
-          value = properties[key];
-          object[key] = value;
-        }
-      }
-      return object;
-    };
+     // Check if a deep merge
+     if ( Object.prototype.toString.call( arguments[0] ) === '[object Boolean]' ) {
+       deep = arguments[0];
+       i++;
+     }
 
-    return Subscription;
+     // Merge the object into the extended object
+     var merge = function (obj) {
+       for ( var prop in obj ) {
+         if ( Object.prototype.hasOwnProperty.call( obj, prop ) ) {
+           // If deep merge and property is an object, merge properties
+           if ( deep && Object.prototype.toString.call(obj[prop]) === '[object Object]' ) {
+             extended[prop] = extend( true, extended[prop], obj[prop] );
+           } else {
+             extended[prop] = obj[prop];
+           }
+         }
+       }
+     };
 
+     // Loop through each object and conduct a merge
+     for ( ; i < length; i++ ) {
+       var obj = arguments[i];
+       merge(obj);
+     }
+
+     return extended;
   })();
 
 }).call(this);
