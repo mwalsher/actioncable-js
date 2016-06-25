@@ -1,6 +1,6 @@
 #!/bin/bash
 git submodule init
-git submodule update --rebase --depth 1
+git submodule update --remote --rebase --depth 1
 ruby_version=$(ruby -v | awk -F' |p' '{print $2}')
 gem install bundler --install-dir "${PWD}/rails/.bundle"
 RAILS_ENV=production ${PWD}/rails/.bundle/bin/bundle install --without doc job test --gemfile ${PWD}/rails/Gemfile --path "${PWD}/rails/.bundle"
