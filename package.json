@@ -1,6 +1,6 @@
 {
   "name": "actioncable-js",
-  "version": "5.0.0.rc2",
+  "version": "5.0.0.2",
   "description": "Standalone ActionCable Javascript from Rails 5 for usage outside of Ruby on Rails",
   "main": "index.js",
   "directories": {
