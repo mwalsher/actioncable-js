@@ -9,7 +9,8 @@
         "confirmation": "confirm_subscription",
         "rejection": "reject_subscription"
       },
-      "default_mount_path": "/cable"
+      "default_mount_path": "/cable",
+      "protocols": ["actioncable-v1-json", "actioncable-unsupported"]
     },
     createConsumer: function(url) {
       var ref;
@@ -188,12 +189,14 @@
 
 }).call(this);
 (function() {
-  var message_types,
-    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var i, message_types, protocols, ref, supportedProtocols, unsupportedProtocol,
     slice = [].slice,
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  message_types = ActionCable.INTERNAL.message_types;
+  ref = ActionCable.INTERNAL, message_types = ref.message_types, protocols = ref.protocols;
+
+  supportedProtocols = 2 <= protocols.length ? slice.call(protocols, 0, i = protocols.length - 1) : (i = 0, []), unsupportedProtocol = protocols[i++];
 
   ActionCable.Connection = (function() {
     Connection.reopenDelay = 500;
@@ -203,6 +206,7 @@
       this.open = bind(this.open, this);
       this.subscriptions = this.consumer.subscriptions;
       this.monitor = new ActionCable.ConnectionMonitor(this);
+      this.disconnected = true;
     }
 
     Connection.prototype.send = function(data) {
@@ -219,20 +223,28 @@
         ActionCable.log("Attempted to open WebSocket, but existing socket is " + (this.getState()));
         throw new Error("Existing connection must be closed before opening");
       } else {
-        ActionCable.log("Opening WebSocket, current state is " + (this.getState()));
+        ActionCable.log("Opening WebSocket, current state is " + (this.getState()) + ", subprotocols: " + protocols);
         if (this.webSocket != null) {
           this.uninstallEventHandlers();
         }
-        this.webSocket = new WebSocket(this.consumer.url);
+        this.webSocket = new WebSocket(this.consumer.url, protocols);
         this.installEventHandlers();
         this.monitor.start();
         return true;
       }
     };
 
-    Connection.prototype.close = function() {
-      var ref;
-      return (ref = this.webSocket) != null ? ref.close() : void 0;
+    Connection.prototype.close = function(arg) {
+      var allowReconnect, ref1;
+      allowReconnect = (arg != null ? arg : {
+        allowReconnect: true
+      }).allowReconnect;
+      if (!allowReconnect) {
+        this.monitor.stop();
+      }
+      if (this.isActive()) {
+        return (ref1 = this.webSocket) != null ? ref1.close() : void 0;
+      }
     };
 
     Connection.prototype.reopen = function() {
@@ -253,6 +265,11 @@
       }
     };
 
+    Connection.prototype.getProtocol = function() {
+      var ref1;
+      return (ref1 = this.webSocket) != null ? ref1.protocol : void 0;
+    };
+
     Connection.prototype.isOpen = function() {
       return this.isState("open");
     };
@@ -261,17 +278,22 @@
       return this.isState("open", "connecting");
     };
 
+    Connection.prototype.isProtocolSupported = function() {
+      var ref1;
+      return ref1 = this.getProtocol(), indexOf.call(supportedProtocols, ref1) >= 0;
+    };
+
     Connection.prototype.isState = function() {
-      var ref, states;
+      var ref1, states;
       states = 1 <= arguments.length ? slice.call(arguments, 0) : [];
-      return ref = this.getState(), indexOf.call(states, ref) >= 0;
+      return ref1 = this.getState(), indexOf.call(states, ref1) >= 0;
     };
 
     Connection.prototype.getState = function() {
-      var ref, state, value;
+      var ref1, state, value;
       for (state in WebSocket) {
         value = WebSocket[state];
-        if (value === ((ref = this.webSocket) != null ? ref.readyState : void 0)) {
+        if (value === ((ref1 = this.webSocket) != null ? ref1.readyState : void 0)) {
           return state.toLowerCase();
         }
       }
@@ -295,11 +317,15 @@
 
     Connection.prototype.events = {
       message: function(event) {
-        var identifier, message, ref, type;
-        ref = JSON.parse(event.data), identifier = ref.identifier, message = ref.message, type = ref.type;
+        var identifier, message, ref1, type;
+        if (!this.isProtocolSupported()) {
+          return;
+        }
+        ref1 = JSON.parse(event.data), identifier = ref1.identifier, message = ref1.message, type = ref1.type;
         switch (type) {
           case message_types.welcome:
-            return this.monitor.recordConnect();
+            this.monitor.recordConnect();
+            return this.subscriptions.reload();
           case message_types.ping:
             return this.monitor.recordPing();
           case message_types.confirmation:
@@ -311,27 +337,29 @@
         }
       },
       open: function() {
-        ActionCable.log("WebSocket onopen event");
+        ActionCable.log("WebSocket onopen event, using '" + (this.getProtocol()) + "' subprotocol");
         this.disconnected = false;
-        return this.subscriptions.reload();
+        if (!this.isProtocolSupported()) {
+          ActionCable.log("Protocol is unsupported. Stopping monitor and disconnecting.");
+          return this.close({
+            allowReconnect: false
+          });
+        }
       },
-      close: function() {
+      close: function(event) {
         ActionCable.log("WebSocket onclose event");
-        return this.disconnect();
+        if (this.disconnected) {
+          return;
+        }
+        this.disconnected = true;
+        this.monitor.recordDisconnect();
+        return this.subscriptions.notifyAll("disconnected", {
+          willAttemptReconnect: this.monitor.isRunning()
+        });
       },
       error: function() {
-        ActionCable.log("WebSocket onerror event");
-        return this.disconnect();
+        return ActionCable.log("WebSocket onerror event");
       }
-    };
-
-    Connection.prototype.disconnect = function() {
-      if (this.disconnected) {
-        return;
-      }
-      this.disconnected = true;
-      this.subscriptions.notifyAll("disconnected");
-      return this.monitor.recordDisconnect();
     };
 
     return Connection;
@@ -529,6 +557,16 @@
 
     Consumer.prototype.send = function(data) {
       return this.connection.send(data);
+    };
+
+    Consumer.prototype.connect = function() {
+      return this.connection.open();
+    };
+
+    Consumer.prototype.disconnect = function() {
+      return this.connection.close({
+        allowReconnect: false
+      });
     };
 
     Consumer.prototype.ensureActiveConnection = function() {
