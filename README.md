@@ -1,3 +1,7 @@
+# This project has been deprecated
+
+This project is no longer being maintained, as the Rails team has published an [official npm package](https://www.npmjs.com/package/actioncable#npm-usage).
+
 # actioncable-js
 Standalone ActionCable Javascript from Rails 5 for usage outside of Ruby on Rails (e.g. with ES6/ES7 apps, React/Angular JS, etc.)
 
